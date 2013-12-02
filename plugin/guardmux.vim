@@ -1,11 +1,13 @@
-"if exists('g:loaded_guardmux') 
-" finish
-"ndif
-"et g:loaded_guardmux = 1
 " '-h' for horizontal split window
 " '-v' for vertical split window
 let g:guardmux_split = get(g:, 'guardmux_split', '-v')
 let g:guardmux_size  = get(g:, 'guardmux_size',  '10')
+
+augroup Guardmux_augroup
+  autocmd!
+  autocmd  VimLeave * :call Guardmux_kill_pane()
+augroup END
+
 
 command! -nargs=0 GmuxToggle       call Guardmux_toggle()
 nnoremap <silent> <leader>g :GmuxToggle<cr>
@@ -63,3 +65,12 @@ function! Guardmux_create_pane()
   let g:guardmux_pane = substitute(system('tmux split-window -Pd -F "#D" "source ~/.bash_profile ; guard -l 1"'), '\n$', '', '')
   echom g:guardmux_pane
 endfunction
+
+function! Guardmux_kill_pane()
+  if !exists('g:guardmux_pane')
+    return
+  endif
+  call system('tmux kill-pane -t '. g:guardmux_pane)
+  unlet g:guardmux_pane
+endfunction
+  
